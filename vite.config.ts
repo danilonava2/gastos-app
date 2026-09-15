@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/gastos-app/',
   plugins: [
     react(),
     VitePWA({
@@ -16,7 +17,8 @@ export default defineConfig({
         theme_color: '#4f7cff',
         background_color: '#f5f6fa',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/gastos-app/',
+        scope: '/gastos-app/',
         icons: [
           {
             src: 'pwa-192x192.png',

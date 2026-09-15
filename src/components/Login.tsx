@@ -14,7 +14,7 @@ export function Login() {
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
-      <img src="/favicon.svg" alt="" className="login-logo" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="login-logo" />
       <h1>Gastos</h1>
       <p>Registrá tus gastos y controlá tu presupuesto mensual.</p>
       <button className="btn btn-google" onClick={login}>

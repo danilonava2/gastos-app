@@ -8,7 +8,7 @@ export function Header() {
   return (
     <header className="app-header">
       <div className="app-header-title">
-        <img src="/favicon.svg" alt="" className="app-logo" />
+        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="app-logo" />
         Gastos
       </div>
       <div className="app-header-user">
