@@ -11,7 +11,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Gastos',
+        name: 'Control de Gastos',
         short_name: 'Gastos',
         description: 'Registrá tus gastos y controlá tu presupuesto mensual',
         theme_color: '#0f4c5c',

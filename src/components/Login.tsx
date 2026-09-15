@@ -18,7 +18,7 @@ export function Login() {
       </button>
       <div className="login-card">
         <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="login-logo" />
-        <h1>Gastos</h1>
+        <h1>Control de Gastos</h1>
         <p>Registrá tus gastos y controlá tu presupuesto mensual, todo en un solo lugar.</p>
         <button className="btn btn-google" onClick={login}>
           <GoogleIcon />

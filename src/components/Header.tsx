@@ -10,7 +10,7 @@ export function Header() {
     <header className="app-header">
       <div className="app-header-title">
         <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="app-logo" />
-        Gastos
+        Control de Gastos
       </div>
       <div className="app-header-user">
         <button
