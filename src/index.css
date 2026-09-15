@@ -8,6 +8,8 @@
   --primary-dark: #3a63e0;
   --danger: #e0453a;
   --success: #3ecf8e;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 2px 4px rgba(16, 24, 40, 0.04), 0 8px 16px rgba(16, 24, 40, 0.08);
 
   color-scheme: light dark;
   font: 16px/1.45 system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -21,6 +23,8 @@
     --text: #f3f4f6;
     --text-muted: #9ca3af;
     --border: #2e303a;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -30,6 +34,8 @@
   --text: #f3f4f6;
   --text-muted: #9ca3af;
   --border: #2e303a;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
 

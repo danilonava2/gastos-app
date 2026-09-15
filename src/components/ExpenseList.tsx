@@ -1,5 +1,6 @@
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
+import { CATEGORY_COLORS } from '../utils/categoryColors';
 
 interface Props {
   expenses: Expense[];
@@ -17,7 +18,13 @@ export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
       {expenses.map((e) => (
         <li key={e.id} className="expense-item">
           <div className="expense-main">
-            <span className="expense-category">{e.category}</span>
+            <span className="expense-category">
+              <span
+                className="category-dot"
+                style={{ background: CATEGORY_COLORS[e.category] }}
+              />
+              {e.category}
+            </span>
             <span className="expense-date">{e.date}</span>
             {e.note && <span className="expense-note">{e.note}</span>}
           </div>

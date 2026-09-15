@@ -9,6 +9,8 @@ import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
 import { BudgetSummary } from './components/BudgetSummary';
 import { CategoryChart } from './components/CategoryChart';
+import { StatsGrid } from './components/StatsGrid';
+import { Reports } from './components/Reports';
 import { TabBar, type TabId } from './components/TabBar';
 import { formatCurrency, monthKey } from './utils/format';
 import type { Expense } from './types';
@@ -33,6 +35,31 @@ function Dashboard() {
     [monthExpenses]
   );
 
+  const prevMonthTotal = useMemo(() => {
+    const prevMonth = new Date(month.getFullYear(), month.getMonth() - 1, 1);
+    const key = monthKey(prevMonth);
+    return expenses
+      .filter((e) => e.date.startsWith(key))
+      .reduce((sum, e) => sum + e.amount, 0);
+  }, [expenses, month]);
+
+  const daysElapsed = useMemo(() => {
+    const now = new Date();
+    const isCurrentMonth = month.getFullYear() === now.getFullYear() && month.getMonth() === now.getMonth();
+    if (isCurrentMonth) return now.getDate();
+    return new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  }, [month]);
+
+  const topCategory = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const e of monthExpenses) totals.set(e.category, (totals.get(e.category) ?? 0) + e.amount);
+    let best: { name: string; amount: number } | null = null;
+    for (const [name, amount] of totals) {
+      if (!best || amount > best.amount) best = { name, amount };
+    }
+    return best;
+  }, [monthExpenses]);
+
   const handleSubmit = (data: { amount: number; category: string; date: string; note: string }) => {
     if (editingExpense) {
       updateExpense(uid, editingExpense.id, data);
@@ -56,7 +83,7 @@ function Dashboard() {
     <div className="app-shell">
       <Header />
       <main className="app-main">
-        <MonthSelector month={month} onChange={setMonth} />
+        {tab !== 'informes' && <MonthSelector month={month} onChange={setMonth} />}
 
         {tab === 'gastos' && (
           <>
@@ -76,6 +103,13 @@ function Dashboard() {
               <span>Total del mes</span>
               <strong>{formatCurrency(total)}</strong>
             </div>
+            <StatsGrid
+              total={total}
+              prevTotal={prevMonthTotal}
+              count={monthExpenses.length}
+              daysElapsed={daysElapsed}
+              topCategory={topCategory}
+            />
             <CategoryChart expenses={monthExpenses} />
           </>
         )}
@@ -87,6 +121,8 @@ function Dashboard() {
             onSetBudget={(category, limit) => setBudget(uid, category, limit)}
           />
         )}
+
+        {tab === 'informes' && <Reports expenses={expenses} />}
       </main>
       <TabBar active={tab} onChange={setTab} />
     </div>

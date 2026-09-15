@@ -1,17 +1,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
-
-const COLORS = [
-  '#4f7cff',
-  '#ff7d5c',
-  '#3ecf8e',
-  '#ffb84f',
-  '#a06bff',
-  '#ff5c93',
-  '#39c0d9',
-  '#8d99ae',
-];
+import { CATEGORY_COLORS } from '../utils/categoryColors';
 
 interface Props {
   expenses: Expense[];
@@ -31,17 +21,17 @@ export function CategoryChart({ expenses }: Props) {
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+            {data.map((d) => (
+              <Cell key={d.name} fill={CATEGORY_COLORS[d.name]} />
             ))}
           </Pie>
           <Tooltip formatter={(value) => formatCurrency(Number(value))} />
         </PieChart>
       </ResponsiveContainer>
       <ul className="chart-legend">
-        {data.map((d, i) => (
+        {data.map((d) => (
           <li key={d.name}>
-            <span className="legend-dot" style={{ background: COLORS[i % COLORS.length] }} />
+            <span className="legend-dot" style={{ background: CATEGORY_COLORS[d.name] }} />
             {d.name}: {formatCurrency(d.value)}
           </li>
         ))}
