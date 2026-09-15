@@ -1,3 +1,6 @@
+import type { ComponentType } from 'react';
+import { BarChartIcon, FileTextIcon, TargetIcon, WalletIcon } from './icons';
+
 export type TabId = 'gastos' | 'resumen' | 'presupuestos' | 'informes';
 
 interface Props {
@@ -5,25 +8,27 @@ interface Props {
   onChange: (tab: TabId) => void;
 }
 
-const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'gastos', label: 'Gastos', icon: '🧾' },
-  { id: 'resumen', label: 'Resumen', icon: '📊' },
-  { id: 'presupuestos', label: 'Presupuestos', icon: '🎯' },
-  { id: 'informes', label: 'Informes', icon: '📄' },
+const TABS: { id: TabId; label: string; Icon: ComponentType<{ size?: number }> }[] = [
+  { id: 'gastos', label: 'Gastos', Icon: WalletIcon },
+  { id: 'resumen', label: 'Resumen', Icon: BarChartIcon },
+  { id: 'presupuestos', label: 'Presupuestos', Icon: TargetIcon },
+  { id: 'informes', label: 'Informes', Icon: FileTextIcon },
 ];
 
 export function TabBar({ active, onChange }: Props) {
   return (
     <nav className="tab-bar">
-      {TABS.map((tab) => (
+      {TABS.map(({ id, label, Icon }) => (
         <button
-          key={tab.id}
-          className={`tab-btn ${active === tab.id ? 'tab-btn-active' : ''}`}
-          onClick={() => onChange(tab.id)}
-          aria-current={active === tab.id ? 'page' : undefined}
+          key={id}
+          className={`tab-btn ${active === id ? 'tab-btn-active' : ''}`}
+          onClick={() => onChange(id)}
+          aria-current={active === id ? 'page' : undefined}
         >
-          <span className="tab-icon">{tab.icon}</span>
-          <span className="tab-label">{tab.label}</span>
+          <span className="tab-icon-wrap">
+            <Icon size={20} />
+          </span>
+          <span className="tab-label">{label}</span>
         </button>
       ))}
     </nav>

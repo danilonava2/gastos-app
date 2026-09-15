@@ -1,6 +1,7 @@
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
 import { CATEGORY_COLORS } from '../utils/categoryColors';
+import { InboxIcon, PencilIcon, TrashIcon } from './icons';
 
 interface Props {
   expenses: Expense[];
@@ -10,7 +11,12 @@ interface Props {
 
 export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
   if (expenses.length === 0) {
-    return <p className="empty-state">No hay gastos registrados este mes.</p>;
+    return (
+      <div className="empty-state">
+        <InboxIcon size={32} />
+        <p>No hay gastos registrados este mes.</p>
+      </div>
+    );
   }
 
   const handleDelete = (e: Expense) => {
@@ -41,14 +47,14 @@ export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
               onClick={() => onEdit(e)}
               aria-label="Editar gasto"
             >
-              ✎
+              <PencilIcon size={17} />
             </button>
             <button
               className="btn-icon btn-delete"
               onClick={() => handleDelete(e)}
               aria-label="Eliminar gasto"
             >
-              ✕
+              <TrashIcon size={17} />
             </button>
           </div>
         </li>

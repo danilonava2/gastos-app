@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CATEGORIES } from '../types';
 import type { Budgets, Expense } from '../types';
 import { formatCurrency } from '../utils/format';
+import { AlertTriangleIcon, TargetIcon } from './icons';
 
 interface Props {
   expenses: Expense[];
@@ -29,16 +30,26 @@ export function BudgetSummary({ expenses, budgets, onSetBudget }: Props) {
     setEditing(null);
   };
 
+  const visibleCategories = CATEGORIES.filter((c) => (budgets[c] ?? 0) > 0 || (spentByCategory[c] ?? 0) > 0);
+
+  if (visibleCategories.length === 0) {
+    return (
+      <div className="empty-state">
+        <TargetIcon size={32} />
+        <p>Todavía no definiste presupuestos. Tocá una categoría para empezar.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="budget-summary">
-      {CATEGORIES.map((c) => {
+      {visibleCategories.map((c) => {
         const spent = spentByCategory[c] ?? 0;
         const limit = budgets[c] ?? 0;
         const hasLimit = limit > 0;
         const pct = hasLimit ? Math.min(100, (spent / limit) * 100) : 0;
         const over = hasLimit && spent > limit;
-
-        if (!hasLimit && spent === 0) return null;
+        const near = hasLimit && !over && pct >= 80;
 
         return (
           <div key={c} className={`budget-row ${over ? 'budget-over' : ''}`}>
@@ -64,13 +75,17 @@ export function BudgetSummary({ expenses, budgets, onSetBudget }: Props) {
             </div>
             <div className="budget-bar">
               <div
-                className={`budget-bar-fill ${over ? 'budget-bar-over' : ''}`}
+                className={`budget-bar-fill ${over ? 'budget-bar-over' : near ? 'budget-bar-near' : ''}`}
                 style={{ width: `${hasLimit ? pct : 0}%` }}
               />
             </div>
             <div className="budget-row-bottom">
               <span>{formatCurrency(spent)}</span>
-              {over && <span className="budget-alert">⚠ Superaste el presupuesto</span>}
+              {over && (
+                <span className="budget-alert">
+                  <AlertTriangleIcon size={14} /> Superaste el presupuesto
+                </span>
+              )}
             </div>
           </div>
         );

@@ -1,13 +1,13 @@
 import { CATEGORIES } from '../types';
 
 const PALETTE = [
-  '#4f7cff',
-  '#ff7d5c',
-  '#3ecf8e',
-  '#ffb84f',
-  '#a06bff',
-  '#ff5c93',
-  '#39c0d9',
+  '#17798c',
+  '#f2b134',
+  '#1fae7a',
+  '#e0703a',
+  '#7b6cf6',
+  '#e0457a',
+  '#4c8fd1',
   '#8d99ae',
 ];
 

@@ -1,5 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../hooks/useTheme';
+import { LogOutIcon, MoonIcon, SunIcon } from './icons';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -17,7 +18,7 @@ export function Header() {
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {theme === 'dark' ? <SunIcon size={19} /> : <MoonIcon size={19} />}
         </button>
         {user?.photoURL && (
           <img
@@ -31,8 +32,8 @@ export function Header() {
           />
         )}
         {user && (
-          <button className="btn-link" onClick={logout}>
-            Salir
+          <button className="btn-icon" onClick={logout} aria-label="Cerrar sesión">
+            <LogOutIcon size={19} />
           </button>
         )}
       </div>

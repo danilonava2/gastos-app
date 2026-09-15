@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { CATEGORIES } from '../types';
 import type { Expense } from '../types';
+import { PlusIcon } from './icons';
 
 interface Props {
   editingExpense: Expense | null;
@@ -82,6 +83,7 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
       {error && <p className="field-error">{error}</p>}
       <div className="form-row">
         <button type="submit" className="btn btn-primary">
+          {!editingExpense && <PlusIcon size={17} />}
           {editingExpense ? 'Guardar cambios' : 'Agregar gasto'}
         </button>
         {editingExpense && (
