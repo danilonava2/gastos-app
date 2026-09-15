@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useToast } from './contexts/ToastContext';
-import { useExpenses } from './hooks/useExpenses';
+import { getExpensesByCategory, useExpenses } from './hooks/useExpenses';
 import { useBudgets } from './hooks/useBudgets';
 import { useCategories } from './hooks/useCategories';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
@@ -25,13 +25,23 @@ function Dashboard() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const uid = user!.uid;
-  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses(uid);
   const { budgets, setBudget } = useBudgets(uid);
   const { categories, saveCategories } = useCategories(uid);
   const online = useOnlineStatus();
   const [month, setMonth] = useState(() => new Date());
   const [tab, setTab] = useState<TabId>('gastos');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+  const loadRange = useMemo(() => {
+    const prevMonth = new Date(month.getFullYear(), month.getMonth() - 1, 1);
+    const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    return {
+      start: `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}-01`,
+      end: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+    };
+  }, [month]);
+
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses(uid, loadRange);
 
   const categoryColors = useMemo(() => getCategoryColors(categories), [categories]);
 
@@ -104,7 +114,8 @@ function Dashboard() {
     }
     const ok = await saveCategories(uid, categories.map((c) => (c === oldName ? newName : c)));
     if (!ok) return;
-    for (const e of expenses.filter((e) => e.category === oldName)) {
+    const affected = await getExpensesByCategory(uid, oldName);
+    for (const e of affected) {
       updateExpense(uid, e.id, { amount: e.amount, category: newName, date: e.date, note: e.note });
     }
     if (budgets[oldName]) {
@@ -113,12 +124,13 @@ function Dashboard() {
     }
   };
 
-  const handleDeleteCategory = (name: string) => {
+  const handleDeleteCategory = async (name: string) => {
     if (categories.length <= 1) {
       showToast('Necesitás al menos una categoría.');
       return;
     }
-    if (expenses.some((e) => e.category === name)) {
+    const inUse = await getExpensesByCategory(uid, name);
+    if (inUse.length > 0) {
       showToast('No podés eliminar una categoría con gastos. Cambiala en esos gastos primero.');
       return;
     }
@@ -185,7 +197,7 @@ function Dashboard() {
           </>
         )}
 
-        {tab === 'informes' && <Reports expenses={expenses} />}
+        {tab === 'informes' && <Reports />}
       </main>
       <TabBar active={tab} onChange={setTab} />
     </div>

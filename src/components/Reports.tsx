@@ -1,12 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import type { Expense } from '../types';
+import { useExpenses } from '../hooks/useExpenses';
 import { formatCurrency } from '../utils/format';
-
-interface Props {
-  expenses: Expense[];
-}
 
 function firstDayOfMonth(): string {
   const d = new Date();
@@ -17,7 +13,7 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function Reports({ expenses }: Props) {
+export function Reports() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [startDate, setStartDate] = useState(firstDayOfMonth());
@@ -26,10 +22,8 @@ export function Reports({ expenses }: Props) {
 
   const invalidRange = startDate > endDate;
 
-  const filtered = useMemo(
-    () => (invalidRange ? [] : expenses.filter((e) => e.date >= startDate && e.date <= endDate)),
-    [expenses, startDate, endDate, invalidRange]
-  );
+  const range = useMemo(() => ({ start: startDate, end: endDate }), [startDate, endDate]);
+  const { expenses: filtered, loading } = useExpenses(user!.uid, range);
 
   const total = useMemo(() => filtered.reduce((sum, e) => sum + e.amount, 0), [filtered]);
 
@@ -82,7 +76,9 @@ export function Reports({ expenses }: Props) {
       </div>
 
       <div className="reports-card reports-preview">
-        <span className="reports-preview-label">{filtered.length} movimientos en el período</span>
+        <span className="reports-preview-label">
+          {loading ? 'Buscando movimientos…' : `${filtered.length} movimientos en el período`}
+        </span>
         <strong className="reports-preview-total">{formatCurrency(total)}</strong>
       </div>
 
@@ -90,7 +86,7 @@ export function Reports({ expenses }: Props) {
         <button
           type="button"
           className="btn btn-primary"
-          disabled={filtered.length === 0 || generating !== null}
+          disabled={loading || filtered.length === 0 || generating !== null}
           onClick={handleDownloadPdf}
         >
           {generating === 'pdf' ? 'Generando…' : 'Descargar PDF'}
@@ -98,7 +94,7 @@ export function Reports({ expenses }: Props) {
         <button
           type="button"
           className="btn btn-secondary"
-          disabled={filtered.length === 0 || generating !== null}
+          disabled={loading || filtered.length === 0 || generating !== null}
           onClick={handleDownloadExcel}
         >
           {generating === 'excel' ? 'Generando…' : 'Descargar Excel'}

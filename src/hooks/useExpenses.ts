@@ -4,17 +4,31 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Expense, NewExpense } from '../types';
 import { toErrorMessage, useToast } from '../contexts/ToastContext';
 
-export function useExpenses(uid: string | undefined) {
+export interface DateRange {
+  start: string;
+  end: string;
+}
+
+export async function getExpensesByCategory(uid: string, category: string): Promise<Expense[]> {
+  const snapshot = await getDocs(
+    query(collection(db, 'users', uid, 'expenses'), where('category', '==', category))
+  );
+  return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Expense, 'id'>) }));
+}
+
+export function useExpenses(uid: string | undefined, range: DateRange) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
@@ -25,7 +39,13 @@ export function useExpenses(uid: string | undefined) {
       setLoading(false);
       return;
     }
-    const q = query(collection(db, 'users', uid, 'expenses'), orderBy('date', 'desc'));
+    setLoading(true);
+    const q = query(
+      collection(db, 'users', uid, 'expenses'),
+      where('date', '>=', range.start),
+      where('date', '<=', range.end),
+      orderBy('date', 'desc')
+    );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setExpenses(
         snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Expense, 'id'>) }))
@@ -33,7 +53,7 @@ export function useExpenses(uid: string | undefined) {
       setLoading(false);
     });
     return unsubscribe;
-  }, [uid]);
+  }, [uid, range.start, range.end]);
 
   const addExpense = async (uid: string, expense: NewExpense) => {
     try {
