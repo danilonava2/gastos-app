@@ -17,6 +17,7 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [date, setDate] = useState(today());
   const [note, setNote] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (editingExpense) {
@@ -24,13 +25,22 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
       setCategory(editingExpense.category);
       setDate(editingExpense.date);
       setNote(editingExpense.note);
+      setError('');
     }
   }, [editingExpense]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const parsed = Number(amount);
-    if (!parsed || parsed <= 0) return;
+    const parsed = Number(amount.replace(',', '.'));
+    if (!amount || isNaN(parsed) || parsed <= 0) {
+      setError('Ingresá un monto válido mayor a 0.');
+      return;
+    }
+    if (!date) {
+      setError('Ingresá una fecha.');
+      return;
+    }
+    setError('');
     onSubmit({ amount: parsed, category, date, note: note.trim() });
     setAmount('');
     setNote('');
@@ -69,6 +79,7 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
           onChange={(e) => setNote(e.target.value)}
         />
       </div>
+      {error && <p className="field-error">{error}</p>}
       <div className="form-row">
         <button type="submit" className="btn btn-primary">
           {editingExpense ? 'Guardar cambios' : 'Agregar gasto'}

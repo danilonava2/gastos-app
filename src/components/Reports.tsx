@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
 
@@ -18,13 +19,16 @@ function today(): string {
 
 export function Reports({ expenses }: Props) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [startDate, setStartDate] = useState(firstDayOfMonth());
   const [endDate, setEndDate] = useState(today());
   const [generating, setGenerating] = useState<'pdf' | 'excel' | null>(null);
 
+  const invalidRange = startDate > endDate;
+
   const filtered = useMemo(
-    () => expenses.filter((e) => e.date >= startDate && e.date <= endDate),
-    [expenses, startDate, endDate]
+    () => (invalidRange ? [] : expenses.filter((e) => e.date >= startDate && e.date <= endDate)),
+    [expenses, startDate, endDate, invalidRange]
   );
 
   const total = useMemo(() => filtered.reduce((sum, e) => sum + e.amount, 0), [filtered]);
@@ -41,6 +45,8 @@ export function Reports({ expenses }: Props) {
     try {
       const { generatePdfReport } = await import('../utils/report');
       generatePdfReport(filtered, meta);
+    } catch {
+      showToast('No se pudo generar el PDF.');
     } finally {
       setGenerating(null);
     }
@@ -51,6 +57,8 @@ export function Reports({ expenses }: Props) {
     try {
       const { generateExcelReport } = await import('../utils/report');
       generateExcelReport(filtered, meta);
+    } catch {
+      showToast('No se pudo generar el Excel.');
     } finally {
       setGenerating(null);
     }
@@ -70,6 +78,7 @@ export function Reports({ expenses }: Props) {
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </label>
         </div>
+        {invalidRange && <p className="field-error">La fecha "desde" es posterior a "hasta".</p>}
       </div>
 
       <div className="reports-card reports-preview">

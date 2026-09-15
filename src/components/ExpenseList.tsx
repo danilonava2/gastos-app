@@ -13,6 +13,12 @@ export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
     return <p className="empty-state">No hay gastos registrados este mes.</p>;
   }
 
+  const handleDelete = (e: Expense) => {
+    if (window.confirm(`¿Eliminar el gasto de ${formatCurrency(e.amount)} en ${e.category}?`)) {
+      onDelete(e.id);
+    }
+  };
+
   return (
     <ul className="expense-list">
       {expenses.map((e) => (
@@ -39,7 +45,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
             </button>
             <button
               className="btn-icon btn-delete"
-              onClick={() => onDelete(e.id)}
+              onClick={() => handleDelete(e)}
               aria-label="Eliminar gasto"
             >
               ✕

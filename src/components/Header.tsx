@@ -19,7 +19,17 @@ export function Header() {
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        {user?.photoURL && <img src={user.photoURL} alt="" className="avatar" />}
+        {user?.photoURL && (
+          <img
+            src={user.photoURL}
+            alt=""
+            className="avatar"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        )}
         {user && (
           <button className="btn-link" onClick={logout}>
             Salir

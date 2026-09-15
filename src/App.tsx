@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useExpenses } from './hooks/useExpenses';
 import { useBudgets } from './hooks/useBudgets';
+import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { Login } from './components/Login';
 import { Header } from './components/Header';
 import { MonthSelector } from './components/MonthSelector';
@@ -21,6 +22,7 @@ function Dashboard() {
   const uid = user!.uid;
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses(uid);
   const { budgets, setBudget } = useBudgets(uid);
+  const online = useOnlineStatus();
   const [month, setMonth] = useState(() => new Date());
   const [tab, setTab] = useState<TabId>('gastos');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -82,6 +84,7 @@ function Dashboard() {
   return (
     <div className="app-shell">
       <Header />
+      {!online && <div className="offline-banner">Sin conexión. Los cambios se guardan y sincronizan solos.</div>}
       <main className="app-main">
         {tab !== 'informes' && <MonthSelector month={month} onChange={setMonth} />}
 

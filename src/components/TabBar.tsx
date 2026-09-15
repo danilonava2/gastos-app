@@ -20,6 +20,7 @@ export function TabBar({ active, onChange }: Props) {
           key={tab.id}
           className={`tab-btn ${active === tab.id ? 'tab-btn-active' : ''}`}
           onClick={() => onChange(tab.id)}
+          aria-current={active === tab.id ? 'page' : undefined}
         >
           <span className="tab-icon">{tab.icon}</span>
           <span className="tab-label">{tab.label}</span>

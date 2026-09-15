@@ -12,10 +12,12 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Expense, NewExpense } from '../types';
+import { toErrorMessage, useToast } from '../contexts/ToastContext';
 
 export function useExpenses(uid: string | undefined) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!uid) {
@@ -34,18 +36,30 @@ export function useExpenses(uid: string | undefined) {
   }, [uid]);
 
   const addExpense = async (uid: string, expense: NewExpense) => {
-    await addDoc(collection(db, 'users', uid, 'expenses'), {
-      ...expense,
-      createdAt: serverTimestamp(),
-    });
+    try {
+      await addDoc(collection(db, 'users', uid, 'expenses'), {
+        ...expense,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      showToast(toErrorMessage(err, 'No se pudo guardar el gasto.'));
+    }
   };
 
   const updateExpense = async (uid: string, expenseId: string, expense: NewExpense) => {
-    await updateDoc(doc(db, 'users', uid, 'expenses', expenseId), { ...expense });
+    try {
+      await updateDoc(doc(db, 'users', uid, 'expenses', expenseId), { ...expense });
+    } catch (err) {
+      showToast(toErrorMessage(err, 'No se pudo actualizar el gasto.'));
+    }
   };
 
   const deleteExpense = async (uid: string, expenseId: string) => {
-    await deleteDoc(doc(db, 'users', uid, 'expenses', expenseId));
+    try {
+      await deleteDoc(doc(db, 'users', uid, 'expenses', expenseId));
+    } catch (err) {
+      showToast(toErrorMessage(err, 'No se pudo eliminar el gasto.'));
+    }
   };
 
   return { expenses, loading, addExpense, updateExpense, deleteExpense };
