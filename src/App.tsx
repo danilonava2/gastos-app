@@ -9,15 +9,19 @@ import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
 import { BudgetSummary } from './components/BudgetSummary';
 import { CategoryChart } from './components/CategoryChart';
+import { TabBar, type TabId } from './components/TabBar';
 import { formatCurrency, monthKey } from './utils/format';
+import type { Expense } from './types';
 import './App.css';
 
 function Dashboard() {
   const { user } = useAuth();
   const uid = user!.uid;
-  const { expenses, addExpense, deleteExpense } = useExpenses(uid);
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses(uid);
   const { budgets, setBudget } = useBudgets(uid);
   const [month, setMonth] = useState(() => new Date());
+  const [tab, setTab] = useState<TabId>('gastos');
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   const monthExpenses = useMemo(() => {
     const key = monthKey(month);
@@ -29,31 +33,62 @@ function Dashboard() {
     [monthExpenses]
   );
 
+  const handleSubmit = (data: { amount: number; category: string; date: string; note: string }) => {
+    if (editingExpense) {
+      updateExpense(uid, editingExpense.id, data);
+      setEditingExpense(null);
+    } else {
+      addExpense(uid, data);
+    }
+  };
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setTab('gastos');
+  };
+
+  const handleDelete = (id: string) => {
+    if (editingExpense?.id === id) setEditingExpense(null);
+    deleteExpense(uid, id);
+  };
+
   return (
     <div className="app-shell">
       <Header />
       <main className="app-main">
-        <ExpenseForm onSubmit={(data) => addExpense(uid, data)} />
-
         <MonthSelector month={month} onChange={setMonth} />
 
-        <div className="total-card">
-          <span>Total del mes</span>
-          <strong>{formatCurrency(total)}</strong>
-        </div>
+        {tab === 'gastos' && (
+          <>
+            <ExpenseForm
+              editingExpense={editingExpense}
+              onSubmit={handleSubmit}
+              onCancelEdit={() => setEditingExpense(null)}
+            />
+            <h2 className="section-title">Movimientos</h2>
+            <ExpenseList expenses={monthExpenses} onEdit={handleEdit} onDelete={handleDelete} />
+          </>
+        )}
 
-        <CategoryChart expenses={monthExpenses} />
+        {tab === 'resumen' && (
+          <>
+            <div className="total-card">
+              <span>Total del mes</span>
+              <strong>{formatCurrency(total)}</strong>
+            </div>
+            <CategoryChart expenses={monthExpenses} />
+          </>
+        )}
 
-        <h2 className="section-title">Presupuestos</h2>
-        <BudgetSummary
-          expenses={monthExpenses}
-          budgets={budgets}
-          onSetBudget={(category, limit) => setBudget(uid, category, limit)}
-        />
-
-        <h2 className="section-title">Movimientos</h2>
-        <ExpenseList expenses={monthExpenses} onDelete={(id) => deleteExpense(uid, id)} />
+        {tab === 'presupuestos' && (
+          <BudgetSummary
+            expenses={monthExpenses}
+            budgets={budgets}
+            onSetBudget={(category, limit) => setBudget(uid, category, limit)}
+          />
+        )}
       </main>
+      <TabBar active={tab} onChange={setTab} />
     </div>
   );
 }

@@ -3,10 +3,11 @@ import { formatCurrency } from '../utils/format';
 
 interface Props {
   expenses: Expense[];
+  onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, onDelete }: Props) {
+export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
   if (expenses.length === 0) {
     return <p className="empty-state">No hay gastos registrados este mes.</p>;
   }
@@ -22,6 +23,13 @@ export function ExpenseList({ expenses, onDelete }: Props) {
           </div>
           <div className="expense-side">
             <span className="expense-amount">{formatCurrency(e.amount)}</span>
+            <button
+              className="btn-icon btn-edit"
+              onClick={() => onEdit(e)}
+              aria-label="Editar gasto"
+            >
+              ✎
+            </button>
             <button
               className="btn-icon btn-delete"
               onClick={() => onDelete(e.id)}

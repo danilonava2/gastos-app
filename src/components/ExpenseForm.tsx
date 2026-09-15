@@ -1,19 +1,31 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { CATEGORIES } from '../types';
+import type { Expense } from '../types';
 
 interface Props {
+  editingExpense: Expense | null;
   onSubmit: (data: { amount: number; category: string; date: string; note: string }) => void;
+  onCancelEdit: () => void;
 }
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({ onSubmit }: Props) {
+export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [date, setDate] = useState(today());
   const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (editingExpense) {
+      setAmount(String(editingExpense.amount));
+      setCategory(editingExpense.category);
+      setDate(editingExpense.date);
+      setNote(editingExpense.note);
+    }
+  }, [editingExpense]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -23,10 +35,12 @@ export function ExpenseForm({ onSubmit }: Props) {
     setAmount('');
     setNote('');
     setDate(today());
+    setCategory(CATEGORIES[0]);
   };
 
   return (
     <form className="expense-form" onSubmit={handleSubmit}>
+      {editingExpense && <div className="expense-form-editing">Editando gasto</div>}
       <div className="form-row">
         <input
           type="number"
@@ -55,9 +69,16 @@ export function ExpenseForm({ onSubmit }: Props) {
           onChange={(e) => setNote(e.target.value)}
         />
       </div>
-      <button type="submit" className="btn btn-primary">
-        Agregar gasto
-      </button>
+      <div className="form-row">
+        <button type="submit" className="btn btn-primary">
+          {editingExpense ? 'Guardar cambios' : 'Agregar gasto'}
+        </button>
+        {editingExpense && (
+          <button type="button" className="btn btn-secondary" onClick={onCancelEdit}>
+            Cancelar
+          </button>
+        )}
+      </div>
     </form>
   );
 }

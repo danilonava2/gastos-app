@@ -8,6 +8,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Expense, NewExpense } from '../types';
@@ -39,9 +40,13 @@ export function useExpenses(uid: string | undefined) {
     });
   };
 
+  const updateExpense = async (uid: string, expenseId: string, expense: NewExpense) => {
+    await updateDoc(doc(db, 'users', uid, 'expenses', expenseId), { ...expense });
+  };
+
   const deleteExpense = async (uid: string, expenseId: string) => {
     await deleteDoc(doc(db, 'users', uid, 'expenses', expenseId));
   };
 
-  return { expenses, loading, addExpense, deleteExpense };
+  return { expenses, loading, addExpense, updateExpense, deleteExpense };
 }
