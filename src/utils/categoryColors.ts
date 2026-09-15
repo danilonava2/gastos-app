@@ -1,5 +1,3 @@
-import { CATEGORIES } from '../types';
-
 const PALETTE = [
   '#17798c',
   '#f2b134',
@@ -11,6 +9,8 @@ const PALETTE = [
   '#8d99ae',
 ];
 
-export const CATEGORY_COLORS: Record<string, string> = Object.fromEntries(
-  CATEGORIES.map((c, i) => [c, PALETTE[i % PALETTE.length]])
-);
+export const FALLBACK_CATEGORY_COLOR = '#8d99ae';
+
+export function getCategoryColors(categories: string[]): Record<string, string> {
+  return Object.fromEntries(categories.map((c, i) => [c, PALETTE[i % PALETTE.length]]));
+}

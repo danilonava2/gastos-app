@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { CATEGORIES } from '../types';
 import type { Budgets, Expense } from '../types';
 import { formatCurrency } from '../utils/format';
 import { AlertTriangleIcon, TargetIcon } from './icons';
 
 interface Props {
+  categories: string[];
   expenses: Expense[];
   budgets: Budgets;
   onSetBudget: (category: string, limit: number) => void;
 }
 
-export function BudgetSummary({ expenses, budgets, onSetBudget }: Props) {
+export function BudgetSummary({ categories, expenses, budgets, onSetBudget }: Props) {
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
 
-  const spentByCategory = CATEGORIES.reduce<Record<string, number>>((acc, c) => {
+  const spentByCategory = categories.reduce<Record<string, number>>((acc, c) => {
     acc[c] = expenses.filter((e) => e.category === c).reduce((sum, e) => sum + e.amount, 0);
     return acc;
   }, {});
@@ -30,13 +30,13 @@ export function BudgetSummary({ expenses, budgets, onSetBudget }: Props) {
     setEditing(null);
   };
 
-  const visibleCategories = CATEGORIES.filter((c) => (budgets[c] ?? 0) > 0 || (spentByCategory[c] ?? 0) > 0);
+  const visibleCategories = categories.filter((c) => (budgets[c] ?? 0) > 0 || (spentByCategory[c] ?? 0) > 0);
 
   if (visibleCategories.length === 0) {
     return (
       <div className="empty-state">
         <TargetIcon size={32} />
-        <p>Todavía no definiste presupuestos. Tocá una categoría para empezar.</p>
+        <p>Todavía no definiste presupuestos. Registrá un gasto o asigná un límite a una categoría.</p>
       </div>
     );
   }

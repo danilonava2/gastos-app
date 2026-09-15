@@ -1,15 +1,16 @@
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
-import { CATEGORY_COLORS } from '../utils/categoryColors';
+import { FALLBACK_CATEGORY_COLOR } from '../utils/categoryColors';
 import { InboxIcon, PencilIcon, TrashIcon } from './icons';
 
 interface Props {
   expenses: Expense[];
+  categoryColors: Record<string, string>;
   onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
+export function ExpenseList({ expenses, categoryColors, onEdit, onDelete }: Props) {
   if (expenses.length === 0) {
     return (
       <div className="empty-state">
@@ -33,7 +34,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: Props) {
             <span className="expense-category">
               <span
                 className="category-dot"
-                style={{ background: CATEGORY_COLORS[e.category] }}
+                style={{ background: categoryColors[e.category] ?? FALLBACK_CATEGORY_COLOR }}
               />
               {e.category}
             </span>

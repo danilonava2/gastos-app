@@ -13,7 +13,7 @@ export interface Budgets {
   [category: string]: number;
 }
 
-export const CATEGORIES = [
+export const DEFAULT_CATEGORIES = [
   'Comida',
   'Transporte',
   'Vivienda',
@@ -22,6 +22,4 @@ export const CATEGORIES = [
   'Entretenimiento',
   'Educación',
   'Otros',
-] as const;
-
-export type Category = (typeof CATEGORIES)[number];
+];

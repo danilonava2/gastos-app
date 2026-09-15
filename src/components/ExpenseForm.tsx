@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { CATEGORIES } from '../types';
 import type { Expense } from '../types';
 import { PlusIcon } from './icons';
 
 interface Props {
+  categories: string[];
   editingExpense: Expense | null;
   onSubmit: (data: { amount: number; category: string; date: string; note: string }) => void;
   onCancelEdit: () => void;
@@ -13,9 +13,9 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
+export function ExpenseForm({ categories, editingExpense, onSubmit, onCancelEdit }: Props) {
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [category, setCategory] = useState<string>(categories[0]);
   const [date, setDate] = useState(today());
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
@@ -29,6 +29,12 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
       setError('');
     }
   }, [editingExpense]);
+
+  useEffect(() => {
+    if (!editingExpense && !categories.includes(category)) {
+      setCategory(categories[0]);
+    }
+  }, [categories, category, editingExpense]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -46,7 +52,7 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
     setAmount('');
     setNote('');
     setDate(today());
-    setCategory(CATEGORIES[0]);
+    setCategory(categories[0]);
   };
 
   return (
@@ -64,7 +70,7 @@ export function ExpenseForm({ editingExpense, onSubmit, onCancelEdit }: Props) {
           required
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>

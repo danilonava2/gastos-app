@@ -1,13 +1,14 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
-import { CATEGORY_COLORS } from '../utils/categoryColors';
+import { FALLBACK_CATEGORY_COLOR } from '../utils/categoryColors';
 
 interface Props {
   expenses: Expense[];
+  categoryColors: Record<string, string>;
 }
 
-export function CategoryChart({ expenses }: Props) {
+export function CategoryChart({ expenses, categoryColors }: Props) {
   const totals = new Map<string, number>();
   for (const e of expenses) {
     totals.set(e.category, (totals.get(e.category) ?? 0) + e.amount);
@@ -22,7 +23,7 @@ export function CategoryChart({ expenses }: Props) {
         <PieChart>
           <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
             {data.map((d) => (
-              <Cell key={d.name} fill={CATEGORY_COLORS[d.name]} />
+              <Cell key={d.name} fill={categoryColors[d.name] ?? FALLBACK_CATEGORY_COLOR} />
             ))}
           </Pie>
           <Tooltip formatter={(value) => formatCurrency(Number(value))} />
@@ -31,7 +32,7 @@ export function CategoryChart({ expenses }: Props) {
       <ul className="chart-legend">
         {data.map((d) => (
           <li key={d.name}>
-            <span className="legend-dot" style={{ background: CATEGORY_COLORS[d.name] }} />
+            <span className="legend-dot" style={{ background: categoryColors[d.name] ?? FALLBACK_CATEGORY_COLOR }} />
             {d.name}: {formatCurrency(d.value)}
           </li>
         ))}

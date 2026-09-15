@@ -281,6 +281,15 @@
   color: var(--text);
 }
 
+.btn-icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-icon:disabled:hover {
+  background: none;
+}
+
 .btn-delete:hover {
   color: var(--danger);
   background: var(--danger-soft);
@@ -455,6 +464,89 @@
   height: 8px;
   border-radius: 50%;
   display: inline-block;
+}
+
+.category-manager {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 5px 6px 5px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.category-chip-name {
+  white-space: nowrap;
+}
+
+.category-chip-input {
+  width: 90px;
+  padding: 3px 6px;
+  border: 1.5px solid var(--primary);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+}
+
+.category-chip .btn-icon {
+  padding: 3px;
+}
+
+.category-add-form {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.category-add-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.category-add-form input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.category-add-form .btn-icon {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.category-add-form .btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .budget-summary {
@@ -777,4 +869,67 @@
 
 .toast-success {
   background: var(--success);
+}
+
+@media (min-width: 640px) {
+  body {
+    min-height: 100vh;
+    background: radial-gradient(circle at 30% 20%, #e4ecec, #c9d4d5 70%);
+  }
+
+  :root[data-theme='dark'] body {
+    background: radial-gradient(circle at 30% 20%, #1a2426, #05090a 70%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) body {
+      background: radial-gradient(circle at 30% 20%, #1a2426, #05090a 70%);
+    }
+  }
+
+  .app-shell,
+  .login-screen,
+  .loading-screen {
+    position: relative;
+    width: 412px;
+    height: min(860px, 94vh);
+    min-height: 0;
+    margin: 24px auto;
+    border: 10px solid #0c1116;
+    border-radius: 46px;
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    overflow: hidden;
+  }
+
+  .login-screen::before,
+  .loading-screen::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 22px;
+    background: #0c1116;
+    border-radius: 0 0 16px 16px;
+    z-index: 20;
+  }
+
+  .app-main {
+    overflow-y: auto;
+  }
+
+  .tab-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+  }
+
+  .toast-stack {
+    top: 56px;
+    width: calc(100% - 64px);
+  }
 }

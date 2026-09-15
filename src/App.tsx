@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useToast } from './contexts/ToastContext';
 import { useExpenses } from './hooks/useExpenses';
 import { useBudgets } from './hooks/useBudgets';
+import { useCategories } from './hooks/useCategories';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { Login } from './components/Login';
 import { Header } from './components/Header';
@@ -9,23 +11,29 @@ import { MonthSelector } from './components/MonthSelector';
 import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
 import { BudgetSummary } from './components/BudgetSummary';
+import { CategoryManager } from './components/CategoryManager';
 import { CategoryChart } from './components/CategoryChart';
 import { StatsGrid } from './components/StatsGrid';
 import { Reports } from './components/Reports';
 import { TabBar, type TabId } from './components/TabBar';
 import { formatCurrency, monthKey } from './utils/format';
+import { getCategoryColors } from './utils/categoryColors';
 import type { Expense } from './types';
 import './App.css';
 
 function Dashboard() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const uid = user!.uid;
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses(uid);
   const { budgets, setBudget } = useBudgets(uid);
+  const { categories, saveCategories } = useCategories(uid);
   const online = useOnlineStatus();
   const [month, setMonth] = useState(() => new Date());
   const [tab, setTab] = useState<TabId>('gastos');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+  const categoryColors = useMemo(() => getCategoryColors(categories), [categories]);
 
   const monthExpenses = useMemo(() => {
     const key = monthKey(month);
@@ -81,6 +89,42 @@ function Dashboard() {
     deleteExpense(uid, id);
   };
 
+  const handleAddCategory = (name: string) => {
+    if (categories.some((c) => c.toLowerCase() === name.toLowerCase())) {
+      showToast('Esa categoría ya existe.');
+      return;
+    }
+    saveCategories(uid, [...categories, name]);
+  };
+
+  const handleRenameCategory = async (oldName: string, newName: string) => {
+    if (categories.some((c) => c.toLowerCase() === newName.toLowerCase() && c !== oldName)) {
+      showToast('Ya existe una categoría con ese nombre.');
+      return;
+    }
+    const ok = await saveCategories(uid, categories.map((c) => (c === oldName ? newName : c)));
+    if (!ok) return;
+    for (const e of expenses.filter((e) => e.category === oldName)) {
+      updateExpense(uid, e.id, { amount: e.amount, category: newName, date: e.date, note: e.note });
+    }
+    if (budgets[oldName]) {
+      setBudget(uid, newName, budgets[oldName]);
+      setBudget(uid, oldName, 0);
+    }
+  };
+
+  const handleDeleteCategory = (name: string) => {
+    if (categories.length <= 1) {
+      showToast('Necesitás al menos una categoría.');
+      return;
+    }
+    if (expenses.some((e) => e.category === name)) {
+      showToast('No podés eliminar una categoría con gastos. Cambiala en esos gastos primero.');
+      return;
+    }
+    saveCategories(uid, categories.filter((c) => c !== name));
+  };
+
   return (
     <div className="app-shell">
       <Header />
@@ -91,12 +135,18 @@ function Dashboard() {
         {tab === 'gastos' && (
           <>
             <ExpenseForm
+              categories={categories}
               editingExpense={editingExpense}
               onSubmit={handleSubmit}
               onCancelEdit={() => setEditingExpense(null)}
             />
             <h2 className="section-title">Movimientos</h2>
-            <ExpenseList expenses={monthExpenses} onEdit={handleEdit} onDelete={handleDelete} />
+            <ExpenseList
+              expenses={monthExpenses}
+              categoryColors={categoryColors}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </>
         )}
 
@@ -113,16 +163,26 @@ function Dashboard() {
               daysElapsed={daysElapsed}
               topCategory={topCategory}
             />
-            <CategoryChart expenses={monthExpenses} />
+            <CategoryChart expenses={monthExpenses} categoryColors={categoryColors} />
           </>
         )}
 
         {tab === 'presupuestos' && (
-          <BudgetSummary
-            expenses={monthExpenses}
-            budgets={budgets}
-            onSetBudget={(category, limit) => setBudget(uid, category, limit)}
-          />
+          <>
+            <CategoryManager
+              categories={categories}
+              categoryColors={categoryColors}
+              onAdd={handleAddCategory}
+              onRename={handleRenameCategory}
+              onDelete={handleDeleteCategory}
+            />
+            <BudgetSummary
+              categories={categories}
+              expenses={monthExpenses}
+              budgets={budgets}
+              onSetBudget={(category, limit) => setBudget(uid, category, limit)}
+            />
+          </>
         )}
 
         {tab === 'informes' && <Reports expenses={expenses} />}
