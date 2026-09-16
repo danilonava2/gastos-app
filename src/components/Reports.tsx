@@ -50,7 +50,7 @@ export function Reports() {
     setGenerating('excel');
     try {
       const { generateExcelReport } = await import('../utils/report');
-      generateExcelReport(filtered, meta);
+      await generateExcelReport(filtered, meta);
     } catch {
       showToast('No se pudo generar el Excel.');
     } finally {
