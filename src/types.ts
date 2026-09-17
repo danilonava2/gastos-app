@@ -9,6 +9,15 @@ export interface Expense {
 
 export type NewExpense = Omit<Expense, 'id' | 'createdAt'>;
 
+export interface FixedExpense {
+  id: string;
+  amount: number;
+  category: string;
+  note: string;
+}
+
+export type NewFixedExpense = Omit<FixedExpense, 'id'>;
+
 export interface Budgets {
   [category: string]: number;
 }

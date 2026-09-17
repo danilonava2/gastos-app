@@ -89,6 +89,22 @@ export function MoonIcon(props: IconProps) {
   return base(props, <path d="M20.5 13.5a8.5 8.5 0 1 1-9-11 7 7 0 0 0 9 11Z" />);
 }
 
+export function RepeatIcon(props: IconProps) {
+  return base(
+    props,
+    <>
+      <path d="M18 6H6a3 3 0 0 0-3 3v2" />
+      <polyline points="14 2 18 6 14 10" />
+      <path d="M6 18h12a3 3 0 0 0 3-3v-2" />
+      <polyline points="10 14 6 18 10 22" />
+    </>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return base(props, <polyline points="5 13 10 18 19 7" />);
+}
+
 export function CopyIcon(props: IconProps) {
   return base(
     props,

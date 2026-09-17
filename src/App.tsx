@@ -4,6 +4,7 @@ import { useToast } from './contexts/ToastContext';
 import { getExpensesByCategory, useExpenses } from './hooks/useExpenses';
 import { useBudgets } from './hooks/useBudgets';
 import { useCategories } from './hooks/useCategories';
+import { useFixedExpenses } from './hooks/useFixedExpenses';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { Login } from './components/Login';
 import { Header } from './components/Header';
@@ -13,6 +14,7 @@ import { ExpenseList } from './components/ExpenseList';
 import { BudgetSummary } from './components/BudgetSummary';
 import { CategoryManager } from './components/CategoryManager';
 import { CategoryChart } from './components/CategoryChart';
+import { FixedExpenses } from './components/FixedExpenses';
 import { StatsGrid } from './components/StatsGrid';
 import { Reports } from './components/Reports';
 import { TabBar, type TabId } from './components/TabBar';
@@ -27,6 +29,8 @@ function Dashboard() {
   const uid = user!.uid;
   const { budgets, setBudget } = useBudgets(uid);
   const { categories, saveCategories } = useCategories(uid);
+  const { fixedExpenses, addFixedExpense, updateFixedExpense, deleteFixedExpense } =
+    useFixedExpenses(uid);
   const online = useOnlineStatus();
   const [month, setMonth] = useState(() => new Date());
   const [tab, setTab] = useState<TabId>('gastos');
@@ -146,12 +150,28 @@ function Dashboard() {
     saveCategories(uid, categories.filter((c) => c !== name));
   };
 
+  const handleApplyFixedExpenses = (ids: string[]) => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const selected = fixedExpenses.filter((fe) => ids.includes(fe.id));
+    for (const fe of selected) {
+      addExpense(uid, { amount: fe.amount, category: fe.category, date: todayStr, note: fe.note });
+    }
+    if (selected.length > 0) {
+      showToast(
+        selected.length === 1
+          ? 'Se agregó 1 gasto a hoy.'
+          : `Se agregaron ${selected.length} gastos a hoy.`,
+        'success'
+      );
+    }
+  };
+
   return (
     <div className="app-shell">
       <Header />
       {!online && <div className="offline-banner">Sin conexión. Los cambios se guardan y sincronizan solos.</div>}
       <main className="app-main">
-        {tab !== 'informes' && <MonthSelector month={month} onChange={setMonth} />}
+        {tab !== 'informes' && tab !== 'fijos' && <MonthSelector month={month} onChange={setMonth} />}
 
         {tab === 'gastos' && (
           <>
@@ -189,6 +209,18 @@ function Dashboard() {
             />
             <CategoryChart expenses={monthExpenses} categoryColors={categoryColors} />
           </>
+        )}
+
+        {tab === 'fijos' && (
+          <FixedExpenses
+            categories={categories}
+            categoryColors={categoryColors}
+            fixedExpenses={fixedExpenses}
+            onAdd={(data) => addFixedExpense(uid, data)}
+            onUpdate={(id, data) => updateFixedExpense(uid, id, data)}
+            onDelete={(id) => deleteFixedExpense(uid, id)}
+            onApply={handleApplyFixedExpenses}
+          />
         )}
 
         {tab === 'presupuestos' && (

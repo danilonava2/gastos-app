@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
-import { BarChartIcon, FileTextIcon, TargetIcon, WalletIcon } from './icons';
+import { BarChartIcon, FileTextIcon, RepeatIcon, TargetIcon, WalletIcon } from './icons';
 
-export type TabId = 'gastos' | 'resumen' | 'presupuestos' | 'informes';
+export type TabId = 'gastos' | 'resumen' | 'fijos' | 'presupuestos' | 'informes';
 
 interface Props {
   active: TabId;
@@ -11,7 +11,8 @@ interface Props {
 const TABS: { id: TabId; label: string; Icon: ComponentType<{ size?: number }> }[] = [
   { id: 'gastos', label: 'Gastos', Icon: WalletIcon },
   { id: 'resumen', label: 'Resumen', Icon: BarChartIcon },
-  { id: 'presupuestos', label: 'Presupuestos', Icon: TargetIcon },
+  { id: 'fijos', label: 'Fijos', Icon: RepeatIcon },
+  { id: 'presupuestos', label: 'Presup.', Icon: TargetIcon },
   { id: 'informes', label: 'Informes', Icon: FileTextIcon },
 ];
 
