@@ -31,6 +31,7 @@ function Dashboard() {
   const [month, setMonth] = useState(() => new Date());
   const [tab, setTab] = useState<TabId>('gastos');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [duplicateSeed, setDuplicateSeed] = useState<Expense | null>(null);
 
   const loadRange = useMemo(() => {
     const prevMonth = new Date(month.getFullYear(), month.getMonth() - 1, 1);
@@ -86,11 +87,19 @@ function Dashboard() {
       setEditingExpense(null);
     } else {
       addExpense(uid, data);
+      setDuplicateSeed(null);
     }
   };
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense);
+    setDuplicateSeed(null);
+    setTab('gastos');
+  };
+
+  const handleDuplicate = (expense: Expense) => {
+    setDuplicateSeed(expense);
+    setEditingExpense(null);
     setTab('gastos');
   };
 
@@ -149,14 +158,17 @@ function Dashboard() {
             <ExpenseForm
               categories={categories}
               editingExpense={editingExpense}
+              duplicateSeed={duplicateSeed}
               onSubmit={handleSubmit}
               onCancelEdit={() => setEditingExpense(null)}
+              onCancelDuplicate={() => setDuplicateSeed(null)}
             />
             <h2 className="section-title">Movimientos</h2>
             <ExpenseList
               expenses={monthExpenses}
               categoryColors={categoryColors}
               onEdit={handleEdit}
+              onDuplicate={handleDuplicate}
               onDelete={handleDelete}
             />
           </>

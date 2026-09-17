@@ -5,15 +5,24 @@ import { PlusIcon } from './icons';
 interface Props {
   categories: string[];
   editingExpense: Expense | null;
+  duplicateSeed: Expense | null;
   onSubmit: (data: { amount: number; category: string; date: string; note: string }) => void;
   onCancelEdit: () => void;
+  onCancelDuplicate: () => void;
 }
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({ categories, editingExpense, onSubmit, onCancelEdit }: Props) {
+export function ExpenseForm({
+  categories,
+  editingExpense,
+  duplicateSeed,
+  onSubmit,
+  onCancelEdit,
+  onCancelDuplicate,
+}: Props) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<string>(categories[0]);
   const [date, setDate] = useState(today());
@@ -29,6 +38,16 @@ export function ExpenseForm({ categories, editingExpense, onSubmit, onCancelEdit
       setError('');
     }
   }, [editingExpense]);
+
+  useEffect(() => {
+    if (duplicateSeed) {
+      setAmount(String(duplicateSeed.amount));
+      setCategory(duplicateSeed.category);
+      setDate(today());
+      setNote(duplicateSeed.note);
+      setError('');
+    }
+  }, [duplicateSeed]);
 
   useEffect(() => {
     if (!editingExpense && !categories.includes(category)) {
@@ -55,9 +74,21 @@ export function ExpenseForm({ categories, editingExpense, onSubmit, onCancelEdit
     setCategory(categories[0]);
   };
 
+  const handleCancelDuplicate = () => {
+    setAmount('');
+    setNote('');
+    setDate(today());
+    setCategory(categories[0]);
+    setError('');
+    onCancelDuplicate();
+  };
+
   return (
     <form className="expense-form" onSubmit={handleSubmit}>
       {editingExpense && <div className="expense-form-editing">Editando gasto</div>}
+      {!editingExpense && duplicateSeed && (
+        <div className="expense-form-editing">Repitiendo un gasto anterior</div>
+      )}
       <div className="form-row">
         <input
           type="number"
@@ -94,6 +125,11 @@ export function ExpenseForm({ categories, editingExpense, onSubmit, onCancelEdit
         </button>
         {editingExpense && (
           <button type="button" className="btn btn-secondary" onClick={onCancelEdit}>
+            Cancelar
+          </button>
+        )}
+        {!editingExpense && duplicateSeed && (
+          <button type="button" className="btn btn-secondary" onClick={handleCancelDuplicate}>
             Cancelar
           </button>
         )}

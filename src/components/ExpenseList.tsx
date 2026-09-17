@@ -1,16 +1,17 @@
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
 import { FALLBACK_CATEGORY_COLOR } from '../utils/categoryColors';
-import { InboxIcon, PencilIcon, TrashIcon } from './icons';
+import { CopyIcon, InboxIcon, PencilIcon, TrashIcon } from './icons';
 
 interface Props {
   expenses: Expense[];
   categoryColors: Record<string, string>;
   onEdit: (expense: Expense) => void;
+  onDuplicate: (expense: Expense) => void;
   onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, categoryColors, onEdit, onDelete }: Props) {
+export function ExpenseList({ expenses, categoryColors, onEdit, onDuplicate, onDelete }: Props) {
   if (expenses.length === 0) {
     return (
       <div className="empty-state">
@@ -43,6 +44,13 @@ export function ExpenseList({ expenses, categoryColors, onEdit, onDelete }: Prop
           </div>
           <div className="expense-side">
             <span className="expense-amount">{formatCurrency(e.amount)}</span>
+            <button
+              className="btn-icon btn-edit"
+              onClick={() => onDuplicate(e)}
+              aria-label="Duplicar gasto"
+            >
+              <CopyIcon size={17} />
+            </button>
             <button
               className="btn-icon btn-edit"
               onClick={() => onEdit(e)}

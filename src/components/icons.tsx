@@ -89,6 +89,16 @@ export function MoonIcon(props: IconProps) {
   return base(props, <path d="M20.5 13.5a8.5 8.5 0 1 1-9-11 7 7 0 0 0 9 11Z" />);
 }
 
+export function CopyIcon(props: IconProps) {
+  return base(
+    props,
+    <>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M6.5 15H5.5A1.5 1.5 0 0 1 4 13.5v-8A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5v1" />
+    </>
+  );
+}
+
 export function PencilIcon(props: IconProps) {
   return base(
     props,
