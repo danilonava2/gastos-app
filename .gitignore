@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .env
 
+# Notas de continuidad entre sesiones de Claude Code (privado, solo vía Dropbox)
+CONTINUIDAD.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

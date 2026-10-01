@@ -687,6 +687,41 @@
   font-weight: 700;
 }
 
+.expense-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.expense-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-bottom: 8px;
+}
+
+.expense-group-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.expense-group-count {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.expense-group-total {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
 .expense-list {
   list-style: none;
   padding: 0;
