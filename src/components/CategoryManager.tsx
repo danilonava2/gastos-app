@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { PencilIcon, PlusIcon, TrashIcon } from './icons';
+import { ChevronDownIcon, PencilIcon, PlusIcon, TrashIcon } from './icons';
 
 interface Props {
   categories: string[];
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function CategoryManager({ categories, categoryColors, onAdd, onRename, onDelete }: Props) {
+  const [collapsed, setCollapsed] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [newName, setNewName] = useState('');
@@ -41,50 +42,70 @@ export function CategoryManager({ categories, categoryColors, onAdd, onRename, o
 
   return (
     <div className="category-manager">
-      <h2 className="section-title">Categorías</h2>
-      <ul className="category-list">
-        {categories.map((c) => (
-          <li key={c} className="category-chip">
-            <span className="category-dot" style={{ background: categoryColors[c] }} />
-            {editing === c ? (
-              <input
-                className="category-chip-input"
-                autoFocus
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onBlur={saveEdit}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') saveEdit();
-                  if (e.key === 'Escape') setEditing(null);
-                }}
-              />
-            ) : (
-              <span className="category-chip-name">{c}</span>
-            )}
-            <button className="btn-icon btn-edit" onClick={() => startEdit(c)} aria-label={`Editar ${c}`}>
-              <PencilIcon size={14} />
-            </button>
-            <button
-              className="btn-icon btn-delete"
-              onClick={() => handleDelete(c)}
-              aria-label={`Eliminar ${c}`}
-              disabled={categories.length <= 1}
-            >
-              <TrashIcon size={14} />
-            </button>
-          </li>
-        ))}
-      </ul>
-      <form className="category-add-form" onSubmit={handleAdd}>
-        <input
-          placeholder="Nueva categoría"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
+      <button
+        type="button"
+        className="category-manager-header"
+        onClick={() => setCollapsed((c) => !c)}
+        aria-expanded={!collapsed}
+      >
+        <span className="section-title">Categorías</span>
+        <ChevronDownIcon
+          size={16}
+          className={`expense-group-chevron ${collapsed ? 'expense-group-chevron-collapsed' : ''}`}
         />
-        <button type="submit" className="btn-icon btn-edit" aria-label="Agregar categoría" disabled={!newName.trim()}>
-          <PlusIcon size={18} />
-        </button>
-      </form>
+      </button>
+      {!collapsed && (
+        <>
+          <ul className="category-list">
+            {categories.map((c) => (
+              <li key={c} className="category-chip">
+                <span className="category-dot" style={{ background: categoryColors[c] }} />
+                {editing === c ? (
+                  <input
+                    className="category-chip-input"
+                    autoFocus
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onBlur={saveEdit}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveEdit();
+                      if (e.key === 'Escape') setEditing(null);
+                    }}
+                  />
+                ) : (
+                  <span className="category-chip-name">{c}</span>
+                )}
+                <button className="btn-icon btn-edit" onClick={() => startEdit(c)} aria-label={`Editar ${c}`}>
+                  <PencilIcon size={14} />
+                </button>
+                <button
+                  className="btn-icon btn-delete"
+                  onClick={() => handleDelete(c)}
+                  aria-label={`Eliminar ${c}`}
+                  disabled={categories.length <= 1}
+                >
+                  <TrashIcon size={14} />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <form className="category-add-form" onSubmit={handleAdd}>
+            <input
+              placeholder="Nueva categoría"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="btn-icon btn-edit"
+              aria-label="Agregar categoría"
+              disabled={!newName.trim()}
+            >
+              <PlusIcon size={18} />
+            </button>
+          </form>
+        </>
+      )}
     </div>
   );
 }

@@ -157,6 +157,10 @@ export function ChevronRightIcon(props: IconProps) {
   return base(props, <polyline points="9.5 18 15.5 12 9.5 6" />);
 }
 
+export function ChevronDownIcon(props: IconProps) {
+  return base(props, <polyline points="6 9 12 15 18 9" />);
+}
+
 export function LogOutIcon(props: IconProps) {
   return base(
     props,

@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import type { Expense } from '../types';
 import { formatCurrency } from '../utils/format';
 import { FALLBACK_CATEGORY_COLOR } from '../utils/categoryColors';
-import { CopyIcon, InboxIcon, PencilIcon, TrashIcon } from './icons';
+import { ChevronDownIcon, CopyIcon, InboxIcon, PencilIcon, TrashIcon } from './icons';
 
 interface Props {
   expenses: Expense[];
@@ -32,6 +33,8 @@ function groupByCategory(expenses: Expense[]): CategoryGroup[] {
 }
 
 export function ExpenseList({ expenses, categoryColors, onEdit, onDuplicate, onDelete }: Props) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
   if (expenses.length === 0) {
     return (
       <div className="empty-state">
@@ -47,59 +50,82 @@ export function ExpenseList({ expenses, categoryColors, onEdit, onDuplicate, onD
     }
   };
 
+  const toggleCollapsed = (category: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  };
+
   const groups = groupByCategory(expenses);
 
   return (
     <div className="expense-groups">
-      {groups.map((group) => (
-        <div key={group.category} className="expense-group">
-          <div className="expense-group-header">
-            <span className="expense-group-title">
-              <span
-                className="category-dot"
-                style={{ background: categoryColors[group.category] ?? FALLBACK_CATEGORY_COLOR }}
-              />
-              {group.category}
-              <span className="expense-group-count">{group.items.length}</span>
-            </span>
-            <span className="expense-group-total">{formatCurrency(group.total)}</span>
+      {groups.map((group) => {
+        const isCollapsed = collapsed.has(group.category);
+        return (
+          <div key={group.category} className="expense-group">
+            <button
+              type="button"
+              className="expense-group-header"
+              onClick={() => toggleCollapsed(group.category)}
+              aria-expanded={!isCollapsed}
+            >
+              <span className="expense-group-title">
+                <ChevronDownIcon
+                  size={15}
+                  className={`expense-group-chevron ${isCollapsed ? 'expense-group-chevron-collapsed' : ''}`}
+                />
+                <span
+                  className="category-dot"
+                  style={{ background: categoryColors[group.category] ?? FALLBACK_CATEGORY_COLOR }}
+                />
+                {group.category}
+                <span className="expense-group-count">{group.items.length}</span>
+              </span>
+              <span className="expense-group-total">{formatCurrency(group.total)}</span>
+            </button>
+            {!isCollapsed && (
+              <ul className="expense-list">
+                {group.items.map((e) => (
+                  <li key={e.id} className="expense-item">
+                    <div className="expense-main">
+                      <span className="expense-date">{e.date}</span>
+                      {e.note && <span className="expense-note">{e.note}</span>}
+                    </div>
+                    <div className="expense-side">
+                      <span className="expense-amount">{formatCurrency(e.amount)}</span>
+                      <button
+                        className="btn-icon btn-edit"
+                        onClick={() => onDuplicate(e)}
+                        aria-label="Duplicar gasto"
+                      >
+                        <CopyIcon size={17} />
+                      </button>
+                      <button
+                        className="btn-icon btn-edit"
+                        onClick={() => onEdit(e)}
+                        aria-label="Editar gasto"
+                      >
+                        <PencilIcon size={17} />
+                      </button>
+                      <button
+                        className="btn-icon btn-delete"
+                        onClick={() => handleDelete(e)}
+                        aria-label="Eliminar gasto"
+                      >
+                        <TrashIcon size={17} />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <ul className="expense-list">
-            {group.items.map((e) => (
-              <li key={e.id} className="expense-item">
-                <div className="expense-main">
-                  <span className="expense-date">{e.date}</span>
-                  {e.note && <span className="expense-note">{e.note}</span>}
-                </div>
-                <div className="expense-side">
-                  <span className="expense-amount">{formatCurrency(e.amount)}</span>
-                  <button
-                    className="btn-icon btn-edit"
-                    onClick={() => onDuplicate(e)}
-                    aria-label="Duplicar gasto"
-                  >
-                    <CopyIcon size={17} />
-                  </button>
-                  <button
-                    className="btn-icon btn-edit"
-                    onClick={() => onEdit(e)}
-                    aria-label="Editar gasto"
-                  >
-                    <PencilIcon size={17} />
-                  </button>
-                  <button
-                    className="btn-icon btn-delete"
-                    onClick={() => handleDelete(e)}
-                    aria-label="Eliminar gasto"
-                  >
-                    <TrashIcon size={17} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
